@@ -1,0 +1,217 @@
+import type { NFT } from "@/types"
+
+const baseNFTs: NFT[] = [
+  {
+    id: "nft-001",
+    name: "Cosmic Guardian",
+    description: "Um guardião das estrelas em um universo digital.",
+    imageUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe",
+    price: "0.125",
+    status: "available",
+    collection: {
+      id: "collection-001",
+      name: "Cosmic Worlds",
+      slug: "cosmic-worlds",
+      imageUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe",
+    },
+    creator: {
+      id: "creator-001",
+      username: "digital_artist",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-10T10:00:00.000Z",
+  },
+  {
+    id: "nft-002",
+    name: "Neon Dreams",
+    description: "Uma composição abstrata de cores neon.",
+    imageUrl: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4",
+    price: "0.250",
+    status: "available",
+    collection: {
+      id: "collection-002",
+      name: "Neon Universe",
+      slug: "neon-universe",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-002",
+      username: "neon_creator",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-09T10:00:00.000Z",
+  },
+  {
+    id: "nft-003",
+    name: "Digital Horizon",
+    description: "Paisagem digital de um horizonte futurista.",
+    imageUrl: "https://images.unsplash.com/photo-1634986666676-ec8fd927c23d",
+    price: "0.075",
+    status: "available",
+    collection: {
+      id: "collection-003",
+      name: "Digital Nature",
+      slug: "digital-nature",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-003",
+      username: "pixel_master",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-08T10:00:00.000Z",
+  },
+  {
+    id: "nft-004",
+    name: "Cyber Warrior",
+    description: "Guerreiro de um mundo cyberpunk.",
+    imageUrl: "https://images.unsplash.com/photo-1614728263952-84ea256f9679",
+    price: "0.500",
+    status: "available",
+    collection: {
+      id: "collection-004",
+      name: "Cyber Legends",
+      slug: "cyber-legends",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-004",
+      username: "cyber_artist",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-07T10:00:00.000Z",
+  },
+  {
+    id: "nft-005",
+    name: "Abstract Motion",
+    description: "Arte abstrata com formas e movimentos.",
+    imageUrl: "https://images.unsplash.com/photo-1549490349-8643362247b5",
+    price: "0.180",
+    status: "available",
+    collection: {
+      id: "collection-005",
+      name: "Abstract Art",
+      slug: "abstract-art",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-005",
+      username: "abstract_lab",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-06T10:00:00.000Z",
+  },
+  {
+    id: "nft-006",
+    name: "Golden Dimension",
+    description: "Uma dimensão abstrata em tons dourados.",
+    imageUrl: "https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d",
+    price: "1.250",
+    status: "available",
+    collection: {
+      id: "collection-006",
+      name: "Golden Collection",
+      slug: "golden-collection",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-006",
+      username: "golden_creator",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-05T10:00:00.000Z",
+  },
+  {
+    id: "nft-007",
+    name: "Lost Galaxy",
+    description: "Uma viagem visual por uma galáxia distante.",
+    imageUrl: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564",
+    price: "0.095",
+    status: "available",
+    collection: {
+      id: "collection-007",
+      name: "Space Explorers",
+      slug: "space-explorers",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-007",
+      username: "space_artist",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-04T10:00:00.000Z",
+  },
+  {
+    id: "nft-008",
+    name: "Crystal World",
+    description: "Um universo formado por cristais digitais.",
+    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23",
+    price: "0.320",
+    status: "available",
+    collection: {
+      id: "collection-008",
+      name: "Crystal Worlds",
+      slug: "crystal-worlds",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-008",
+      username: "crystal_maker",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-03T10:00:00.000Z",
+  },
+  {
+    id: "nft-009",
+    name: "Pixel Kingdom",
+    description: "Uma homenagem à arte em pixel.",
+    imageUrl: "https://images.unsplash.com/photo-1633167606207-d840b5070fc2",
+    price: "0.045",
+    status: "available",
+    collection: {
+      id: "collection-009",
+      name: "Pixel Art",
+      slug: "pixel-art",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-009",
+      username: "pixel_king",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-02T10:00:00.000Z",
+  },
+  {
+    id: "nft-010",
+    name: "Ethereal Being",
+    description: "Uma entidade misteriosa de outro plano.",
+    imageUrl: "https://images.unsplash.com/photo-1635372722656-389f87a941b7",
+    price: "2.500",
+    status: "available",
+    collection: {
+      id: "collection-010",
+      name: "Ethereal Collection",
+      slug: "ethereal-collection",
+      imageUrl: "",
+    },
+    creator: {
+      id: "creator-010",
+      username: "ethereal_art",
+      avatarUrl: "",
+    },
+    createdAt: "2026-11-01T10:00:00.000Z",
+  },
+]
+
+export const nfts: NFT[] = Array.from({ length: 30 }, (_, index) => {
+  const baseNFT = baseNFTs[index % baseNFTs.length]
+  const edition = Math.floor(index / baseNFTs.length) + 1
+
+  return {
+    ...baseNFT,
+    id: `nft-${String(index + 1).padStart(3, "0")}`,
+    name: edition === 1 ? baseNFT.name : `${baseNFT.name} #${edition}`,
+    collection: { ...baseNFT.collection },
+    creator: { ...baseNFT.creator },
+  }
+})
