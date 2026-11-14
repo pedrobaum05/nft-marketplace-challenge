@@ -9,11 +9,15 @@ import { walletHandlers } from "./wallets"
 import { favoriteHandlers } from "./favorites"
 import { cartHandlers } from "./cart"
 import { checkoutHandlers } from "./checkout"
+import { quoteHandlers } from "./quote"
+import { orderHandlers } from "./order"
 
 export const handlers = [
   ...authHandlers,
   ...cartHandlers,
   ...checkoutHandlers,
+  ...quoteHandlers,
+  ...orderHandlers,
   ...walletHandlers,
   ...favoriteHandlers,
 
