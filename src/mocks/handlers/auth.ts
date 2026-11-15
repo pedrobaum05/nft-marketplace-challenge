@@ -125,7 +125,7 @@ function createSession(user: StoredUser): Session {
   return session
 }
 
-export  function getActiveSession(): Session | null {
+export function getActiveSession(): Session | null {
   const session = readSession()
 
   if (!session) {
@@ -143,6 +143,28 @@ export  function getActiveSession(): Session | null {
   }
 
   return session
+}
+
+function getAuthenticatedUser(): {
+  session: Session
+  user: StoredUser
+} | null {
+  const session = getActiveSession()
+
+  if (!session) {
+    return null
+  }
+
+  const user = readUsers().find(
+    (storedUser) => storedUser.id === session.user.id,
+  )
+
+  if (!user) {
+    clearSession()
+    return null
+  }
+
+  return { session, user }
 }
 
 export const authHandlers = [
@@ -269,6 +291,148 @@ export const authHandlers = [
 
     return HttpResponse.json(
       { success: true },
+      { status: 200 },
+    )
+  }),
+
+  http.patch("/api/auth/profile", async ({ request }) => {
+    const authenticated = getAuthenticatedUser()
+
+    if (!authenticated) {
+      return HttpResponse.json(
+        { message: "Sessão não encontrada ou expirada." },
+        { status: 401 },
+      )
+    }
+
+    const body: unknown = await request.json()
+
+    if (!isRecord(body)) {
+      return HttpResponse.json(
+        { message: "Dados de perfil inválidos." },
+        { status: 400 },
+      )
+    }
+
+    const hasName = Object.prototype.hasOwnProperty.call(body, "name")
+    const hasAvatar = Object.prototype.hasOwnProperty.call(
+      body,
+      "avatarUrl",
+    )
+
+    if (!hasName && !hasAvatar) {
+      return HttpResponse.json(
+        { message: "Informe ao menos um dado para atualizar." },
+        { status: 400 },
+      )
+    }
+
+    if (hasName && typeof body.name !== "string") {
+      return HttpResponse.json(
+        { message: "O nome informado é inválido." },
+        { status: 400 },
+      )
+    }
+
+    if (
+      hasAvatar &&
+      body.avatarUrl !== null &&
+      typeof body.avatarUrl !== "string"
+    ) {
+      return HttpResponse.json(
+        { message: "O avatar informado é inválido." },
+        { status: 400 },
+      )
+    }
+
+    const name = hasName ? (body.name as string).trim() : undefined
+
+    if (hasName && !name) {
+      return HttpResponse.json(
+        { message: "O nome não pode ficar vazio." },
+        { status: 400 },
+      )
+    }
+
+    const updatedUser: StoredUser = {
+      ...authenticated.user,
+      ...(hasName ? { name } : {}),
+      ...(hasAvatar ? { avatarUrl: body.avatarUrl as string | null } : {}),
+    }
+
+    const users = readUsers().map((user) =>
+      user.id === updatedUser.id ? updatedUser : user,
+    )
+
+    saveUsers(users)
+
+    const updatedSession: Session = {
+      ...authenticated.session,
+      user: toPublicUser(updatedUser),
+    }
+
+    saveSession(updatedSession)
+
+    return HttpResponse.json(updatedSession, { status: 200 })
+  }),
+
+  http.patch("/api/auth/password", async ({ request }) => {
+    const authenticated = getAuthenticatedUser()
+
+    if (!authenticated) {
+      return HttpResponse.json(
+        { message: "Sessão não encontrada ou expirada." },
+        { status: 401 },
+      )
+    }
+
+    const body: unknown = await request.json()
+
+    if (
+      !isRecord(body) ||
+      typeof body.currentPassword !== "string" ||
+      typeof body.newPassword !== "string"
+    ) {
+      return HttpResponse.json(
+        { message: "Dados de alteração de senha inválidos." },
+        { status: 400 },
+      )
+    }
+
+    if (body.currentPassword !== authenticated.user.password) {
+      return HttpResponse.json(
+        { message: "A senha atual está incorreta." },
+        { status: 400 },
+      )
+    }
+
+    if (body.newPassword.length < 8) {
+      return HttpResponse.json(
+        { message: "A nova senha deve ter pelo menos 8 caracteres." },
+        { status: 400 },
+      )
+    }
+
+    if (body.newPassword === body.currentPassword) {
+      return HttpResponse.json(
+        { message: "A nova senha deve ser diferente da senha atual." },
+        { status: 400 },
+      )
+    }
+
+    const updatedUser: StoredUser = {
+      ...authenticated.user,
+      password: body.newPassword,
+    }
+
+    const users = readUsers().map((user) =>
+      user.id === updatedUser.id ? updatedUser : user,
+    )
+
+    saveUsers(users)
+
+    return HttpResponse.json(
+      { message: "Senha atualizada com sucesso." },
       { status: 200 },
     )
   }),

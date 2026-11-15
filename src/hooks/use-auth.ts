@@ -7,12 +7,16 @@ import {
   login,
   logout,
   register,
+  updatePassword,
+  updateProfile,
 } from "@/services/auth.service"
 
 import type {
   LoginCredentials,
+  PasswordUpdate,
   RegisterCredentials,
   Session,
+  UserProfileUpdate,
 } from "@/types"
 
 const AUTH_SESSION_QUERY_KEY = ["auth", "session"] as const
@@ -89,9 +93,19 @@ export function useAuth() {
     mutationFn: logout,
     onSuccess: () => {
       clearUserScopedCache(queryClient)
-
       queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, null)
     },
+  })
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (profile: UserProfileUpdate) => updateProfile(profile),
+    onSuccess: (updatedSession) => {
+      queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, updatedSession)
+    },
+  })
+
+  const updatePasswordMutation = useMutation({
+    mutationFn: (password: PasswordUpdate) => updatePassword(password),
   })
 
   return {
@@ -104,9 +118,13 @@ export function useAuth() {
     login: loginMutation.mutateAsync,
     register: registerMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
+    updateProfile: updateProfileMutation.mutateAsync,
+    updatePassword: updatePasswordMutation.mutateAsync,
 
     isLoggingIn: loginMutation.isPending,
     isRegistering: registerMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
+    isUpdatingProfile: updateProfileMutation.isPending,
+    isUpdatingPassword: updatePasswordMutation.isPending,
   }
 }

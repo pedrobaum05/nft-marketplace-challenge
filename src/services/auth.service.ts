@@ -1,8 +1,10 @@
 
 import type {
   LoginCredentials,
+  PasswordUpdate,
   RegisterCredentials,
   Session,
+  UserProfileUpdate,
 } from "@/types"
 
 import { api } from "./api"
@@ -37,4 +39,21 @@ export async function getSession(): Promise<Session> {
 
 export async function logout(): Promise<void> {
   await api.post("/auth/logout")
+}
+
+export async function updateProfile(
+  profile: UserProfileUpdate,
+): Promise<Session> {
+  const { data } = await api.patch<Session>(
+    "/auth/profile",
+    profile,
+  )
+
+  return data
+}
+
+export async function updatePassword(
+  password: PasswordUpdate,
+): Promise<void> {
+  await api.patch("/auth/password", password)
 }
