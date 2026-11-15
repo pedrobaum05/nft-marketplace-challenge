@@ -1,4 +1,3 @@
-
 # NFT Marketplace
 
 Aplicação web de um marketplace de NFTs desenvolvida como teste técnico para a Jungle Gaming, utilizando React, TypeScript e Vite.
@@ -9,31 +8,35 @@ Aplicação web de um marketplace de NFTs desenvolvida como teste técnico para 
 
 ## Tecnologias
 
-- **React 19** — construção da interface.
-- **TypeScript 6** — tipagem estática.
-- **Vite 8** — ferramenta de desenvolvimento e build.
-- **TanStack Router** — roteamento.
-- **TanStack Query** — gerenciamento de estado assíncrono e cache.
-- **Tailwind CSS 4** — estilização.
-- **Base UI** — componentes de interface.
-- **Axios** — comunicação HTTP.
-- **Decimal.js** — operações com valores decimais, incluindo ETH.
-- **MSW 2** — simulação das APIs REST.
-- **Socket.IO Client** — comunicação por eventos em tempo real.
-- **Playwright** — testes automatizados E2E.
-- **Lighthouse** — auditoria de qualidade e desempenho.
+- React 19 — construção da interface.
+- TypeScript 6 — tipagem estática.
+- Vite 8 — ferramenta de desenvolvimento e build.
+- TanStack Router — roteamento.
+- TanStack Query — gerenciamento de estado assíncrono e cache.
+- Tailwind CSS 4 — estilização.
+- Base UI — componentes de interface.
+- Axios — comunicação HTTP.
+- Decimal.js — operações com valores decimais, incluindo ETH.
+- MSW 2 — simulação das APIs REST.
+- Socket.IO Client — comunicação por eventos em tempo real.
+- Playwright — testes automatizados E2E.
+- Lighthouse — auditoria de qualidade e desempenho.
 
 ## Funcionalidades
 
 - Cadastro, login e gerenciamento de sessão.
+- Visualização e edição de perfil, incluindo nome e avatar.
+- Alteração de senha.
 - Catálogo de NFTs com pesquisa, filtros, ordenação e paginação.
-- Visualização de detalhes de NFTs.
-- Adição e remoção de favoritos.
+- Visualização dos detalhes de NFTs.
+- Adição, remoção e filtragem de favoritos.
 - Carrinho de compras.
 - Cotação e resumo do pedido.
-- Processo de checkout com criação de pedidos.
-- Simulação de estados de pedido: pendente, confirmado e recusado.
-- Integração simulada de eventos para atualizações de NFTs e pedidos.
+- Aplicação de descontos e cálculo de taxa de rede.
+- Checkout com criação de pedidos.
+- Simulação de aprovação e recusa de pagamentos.
+- Exibição dos estados dos pedidos: pendente, confirmado e recusado.
+- Gerenciamento de carteiras simuladas.
 
 ## Executando localmente
 
@@ -63,7 +66,7 @@ Instale as dependências:
 npm install
 ```
 
-Inicie o servidor de desenvolvimento:
+Inicie o servidor:
 
 ```bash
 npm run dev
@@ -91,42 +94,73 @@ http://localhost:5173
 
 ## Testes e validações
 
-O projeto utiliza Playwright para validar fluxos da aplicação.
+O projeto utiliza Playwright para validar os principais fluxos da aplicação.
 
-Cenários cobertos:
+### Cenários cobertos
 
+- Cadastro e autenticação.
+- Validação de credenciais e e-mails duplicados.
+- Proteção de rotas e logout.
 - Catálogo, pesquisa, ordenação e paginação.
-- Cadastro, autenticação e proteção de rotas.
 - Favoritos.
 - Carrinho.
-- Checkout e estados de pedidos.
-- Regressão visual em resoluções desktop e mobile.
+- Checkout e criação de pedidos.
+- Aprovação e recusa simuladas.
+- Nova tentativa após recusa.
+- Estado pendente do pedido.
+- Regressão visual em desktop e mobile.
 
-**Resultados registrados durante o desenvolvimento:**
+### Resultados da última validação
 
-- 17 testes E2E aprovados na execução registrada.
-- 8 verificações de regressão visual aprovadas.
-- Typecheck da aplicação e dos testes aprovado.
+- **25 testes E2E aprovados.**
+- Typecheck da aplicação aprovado.
+- Typecheck dos testes E2E aprovado anteriormente.
 - Build de produção concluído.
-- ESLint executado sem erros; foi registrado um aviso em arquivo gerado pelo MSW.
+- ESLint executado sem erros.
 
-As auditorias Lighthouse foram realizadas na página inicial em perfil mobile. As pontuações variaram entre as execuções, portanto não representam uma garantia de desempenho em todos os dispositivos e páginas.
+O ESLint apresentou um aviso relacionado a uma diretiva `eslint-disable` não utilizada no arquivo gerado `public/mockServiceWorker.js`. Não foram identificados erros de lint.
+
+### Lighthouse
+
+Foram gerados três relatórios de auditoria Lighthouse para a página inicial em perfil mobile.
+
+As pontuações variaram entre as execuções. Os relatórios não representam uma auditoria completa de todas as páginas ou dispositivos.
+
+Os arquivos estão disponíveis no diretório `lighthouse-reports/`.
 
 ## Observações e limitações
 
 ### API e persistência
 
-A aplicação utiliza Mock Service Worker (MSW) para interceptar e simular as requisições da API. Os dados e comportamentos apresentados são simulados, não correspondendo a um backend de produção.
+A aplicação utiliza Mock Service Worker (MSW) para interceptar e simular as requisições da API. O MSW também é inicializado no ambiente publicado.
 
-O MSW também é inicializado no ambiente publicado.
+Os dados de autenticação, carteiras e pedidos são simulados e armazenados localmente no navegador. Não existe um backend persistente compartilhado entre usuários ou dispositivos.
+
+Consequentemente, os dados de demonstração de cada avaliador são independentes.
+
+### Autenticação
+
+O fluxo de autenticação é simulado pelo MSW. O armazenamento local de credenciais não representa uma implementação adequada para um sistema real de produção.
 
 ### Pagamentos
 
-Não existe integração com uma carteira ou gateway de pagamento real. O checkout cria pedidos simulados, e as ações de aprovação e recusa estão disponíveis somente no ambiente de desenvolvimento. Por isso, um pedido pode permanecer com status pendente na aplicação publicada.
+Não existe integração com uma carteira blockchain ou gateway de pagamento real.
+
+O checkout cria pedidos simulados. As opções de simular aprovação e recusa estão disponíveis também no ambiente publicado, permitindo testar os diferentes estados do pedido.
+
+**Nenhuma transação financeira real é realizada.**
+
+### Rede e taxa
+
+A taxa de rede exibida no checkout utiliza valores simulados. Não há integração com uma rede blockchain real nem seleção dinâmica de redes no fluxo atualmente implementado.
 
 ### Socket.IO
 
-A integração de eventos foi implementada, mas a conexão apresenta desconexões e reconexões durante a execução. Essa limitação permanece conhecida e não foi considerada validada como uma conexão estável em tempo real.
+A integração de eventos foi implementada, mas apresentou desconexões e reconexões durante os testes. A estabilidade da comunicação em tempo real não foi validada.
+
+### Rotas
+
+A navegação interna da aplicação foi validada. Durante a verificação em produção, o acesso direto à rota `/account` retornou 404, embora a página tenha funcionado ao acessá-la pelo menu da aplicação. Esse comportamento permanece como ponto de atenção.
 
 ## Deploy
 
@@ -134,8 +168,8 @@ A aplicação está publicada na Vercel:
 
 https://nft-marketplace-challenge-kappa.vercel.app
 
-A branch utilizada para produção é `develop`.
+A branch configurada para produção é `develop`.
 
----
+## Autor
 
-Desenvolvido por **Pedro Baum** como parte do teste técnico de Frontend da Jungle Gaming.
+Desenvolvido por Pedro Baum como parte do teste técnico de Frontend da Jungle Gaming.
