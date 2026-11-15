@@ -10,6 +10,7 @@ import type {
 
 import { getActiveSession } from "./auth"
 import { getStoredQuote } from "./checkout"
+import { emitOrderUpdated } from "./socket"
 
 const ORDERS_STORAGE_KEY = "nft-marketplace:mock-orders"
 const WALLETS_STORAGE_KEY = "nft-marketplace:mock-wallets"
@@ -330,6 +331,9 @@ export const orderHandlers = [
       }
 
       saveOrders(orders)
+
+      // Emite somente depois de persistir a alteração.
+      emitOrderUpdated(updatedOrder)
 
       return HttpResponse.json({
         order: updatedOrder,

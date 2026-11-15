@@ -11,6 +11,7 @@ import { cartHandlers } from "./cart"
 import { checkoutHandlers } from "./checkout"
 import { quoteHandlers } from "./quote"
 import { orderHandlers } from "./order"
+import { socketHandlers } from "./socket"
 
 export const handlers = [
   ...authHandlers,
@@ -20,6 +21,7 @@ export const handlers = [
   ...orderHandlers,
   ...walletHandlers,
   ...favoriteHandlers,
+  ...socketHandlers,
 
   http.get("/api/nfts", ({ request }) => {
     const url = new URL(request.url)

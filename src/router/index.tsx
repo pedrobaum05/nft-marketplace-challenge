@@ -13,6 +13,7 @@ import { CheckoutPage } from "@/pages/checkout-page"
 import { LoginPage } from "@/pages/login-page"
 import { RegisterPage } from "@/pages/register-page"
 import { NFTDetailRoute } from "@/router/nft-detail-route"
+import { RootLayout } from "@/router/root-layout"
 
 const sortOptions = [
   "newest",
@@ -64,7 +65,9 @@ function validateCheckoutSearch(
   }
 }
 
-const rootRoute = createRootRoute()
+const rootRoute = createRootRoute({
+  component: RootLayout,
+})
 
 const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
