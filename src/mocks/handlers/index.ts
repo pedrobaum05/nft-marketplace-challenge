@@ -39,6 +39,9 @@ export const handlers = [
       sortDirection:
         (url.searchParams.get("sortDirection") as
           | NFTFilters["sortDirection"]) ?? "asc",
+      favoriteIds: url.searchParams.getAll("favoriteIds[]"),
+      favoritesOnly:
+        url.searchParams.get("favoritesOnly") === "true",
       page: Number(url.searchParams.get("page") ?? 1),
       pageSize: Number(url.searchParams.get("pageSize") ?? 12),
     }
@@ -82,6 +85,12 @@ export const handlers = [
           filters.maxPrice!,
         ),
       )
+    }
+
+    if (filters.favoritesOnly) {
+      const favoriteIds = new Set(filters.favoriteIds ?? [])
+
+      result = result.filter((nft) => favoriteIds.has(nft.id))
     }
 
     if (filters.sortBy) {

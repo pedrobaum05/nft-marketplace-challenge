@@ -4,11 +4,20 @@ import { Link } from "@tanstack/react-router"
 import Decimal from "decimal.js"
 
 import { AppHeader } from "@/components/layout/app-header"
+import { useAuth } from "@/hooks/use-auth"
 import { useCart } from "@/hooks/use-cart"
 import { createQuote } from "@/services/checkout.service"
 import type { CartQuote } from "@/types"
 
+function formatETH(value: Decimal.Value): string {
+  const amount = new Decimal(value)
+
+  return amount.toFixed(Math.max(amount.decimalPlaces(), 3))
+}
+
 export function CartPage() {
+  const { isAuthenticated } = useAuth()
+
   const {
     items,
     itemCount,
@@ -74,6 +83,11 @@ export function CartPage() {
   }
 
   async function handleCreateQuote() {
+    if (!isAuthenticated) {
+      setQuoteError("Entre na sua conta para gerar uma cotação.")
+      return
+    }
+
     setQuoteError("")
     setActionError("")
     setIsQuoting(true)
@@ -187,7 +201,7 @@ export function CartPage() {
                       </h2>
 
                       <p className="text-sm text-muted-foreground">
-                        {item.nft.price} ETH por unidade
+                        {formatETH(item.nft.price)} ETH por unidade
                       </p>
                     </div>
 
@@ -243,9 +257,9 @@ export function CartPage() {
                   </div>
 
                   <div className="text-left font-bold sm:min-w-28 sm:text-right">
-                    {new Decimal(item.nft.price)
-                      .mul(item.quantity)
-                      .toString()}{" "}
+                    {formatETH(
+                      new Decimal(item.nft.price).mul(item.quantity),
+                    )}{" "}
                     ETH
                   </div>
                 </article>
@@ -286,7 +300,7 @@ export function CartPage() {
                 </span>
 
                 <span>
-                  {quote?.subtotal ?? subtotal.toString()} ETH
+                  {formatETH(quote?.subtotal ?? subtotal.toString())} ETH
                 </span>
               </div>
 
@@ -318,13 +332,25 @@ export function CartPage() {
                 <button
                   type="button"
                   onClick={() => void handleCreateQuote()}
-                  disabled={isQuoting || isMutating}
+                  disabled={isQuoting || isMutating || !isAuthenticated}
                   className="w-full rounded-md border border-primary px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isQuoting
                     ? "Calculando cotação..."
                     : "Gerar cotação"}
                 </button>
+
+                {!isAuthenticated && (
+                  <p className="text-sm text-muted-foreground">
+                    <Link
+                      to="/login"
+                      className="font-semibold text-primary hover:underline"
+                    >
+                      Entre na sua conta
+                    </Link>{" "}
+                    para gerar uma cotação e finalizar a compra.
+                  </p>
+                )}
 
                 {quoteError && (
                   <p role="alert" className="text-sm text-red-500">
@@ -346,7 +372,7 @@ export function CartPage() {
                       </span>
 
                       <span className="text-green-600">
-                        - {quote.discount} ETH
+                        - {formatETH(quote.discount)} ETH
                       </span>
                     </div>
 
@@ -355,7 +381,7 @@ export function CartPage() {
                         Taxa de rede
                       </span>
 
-                      <span>{quote.networkFee} ETH</span>
+                      <span>{formatETH(quote.networkFee)} ETH</span>
                     </div>
 
                     <p className="text-xs text-muted-foreground">
@@ -371,7 +397,7 @@ export function CartPage() {
                   <span className="font-semibold">Total</span>
 
                   <span className="text-xl font-bold text-primary">
-                    {quote?.total ?? subtotal.toString()} ETH
+                    {formatETH(quote?.total ?? subtotal.toString())} ETH
                   </span>
                 </div>
               </div>
@@ -381,13 +407,23 @@ export function CartPage() {
                 Nenhum pagamento real será realizado.
               </p>
 
-              <button
-                type="button"
-                disabled
-                className="w-full cursor-not-allowed rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground opacity-50"
-              >
-                Checkout em implementação
-              </button>
+              {quote ? (
+                <Link
+                  to="/checkout"
+                  search={{ quoteId: quote.quoteId }}
+                  className="block w-full rounded-md bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+                >
+                  Continuar para pagamento
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="w-full cursor-not-allowed rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground opacity-50"
+                >
+                  Gere uma cotação para continuar
+                </button>
+              )}
             </aside>
           </div>
         )}

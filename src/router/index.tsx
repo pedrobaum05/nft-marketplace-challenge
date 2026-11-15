@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/auth/protected-route"
 import { AccountPage } from "@/pages/account-page"
 import { CartPage } from "@/pages/cart-page"
 import { CatalogPage } from "@/pages/catalog-page"
+import { CheckoutPage } from "@/pages/checkout-page"
 import { LoginPage } from "@/pages/login-page"
 import { RegisterPage } from "@/pages/register-page"
 import { NFTDetailRoute } from "@/router/nft-detail-route"
@@ -48,6 +49,21 @@ function validateCatalogSearch(
   return { q, sort, page }
 }
 
+interface CheckoutSearch {
+  quoteId: string
+}
+
+function validateCheckoutSearch(
+  search: Record<string, unknown>,
+): CheckoutSearch {
+  return {
+    quoteId:
+      typeof search.quoteId === "string"
+        ? search.quoteId
+        : "",
+  }
+}
+
 const rootRoute = createRootRoute()
 
 const homeRoute = createRoute({
@@ -85,6 +101,17 @@ const cartRoute = createRoute({
   component: CartPage,
 })
 
+const checkoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/checkout",
+  validateSearch: validateCheckoutSearch,
+  component: () => (
+    <ProtectedRoute>
+      <CheckoutPage />
+    </ProtectedRoute>
+  ),
+})
+
 const nftDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/nft/$nftId",
@@ -97,6 +124,7 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   accountRoute,
   cartRoute,
+  checkoutRoute,
   nftDetailRoute,
 ])
 

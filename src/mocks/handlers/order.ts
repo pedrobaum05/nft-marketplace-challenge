@@ -105,16 +105,16 @@ function isValidOrderRequest(
   )
 }
 
-function createOrderId(): string {
-  return `order-${crypto.randomUUID()}`
-}
-
-function isOrderStatus(value: string | null): value is OrderStatus {
+function isOrderStatus(value: unknown): value is OrderStatus {
   return (
     value === "pending" ||
     value === "confirmed" ||
     value === "declined"
   )
+}
+
+function createOrderId(): string {
+  return `order-${crypto.randomUUID()}`
 }
 
 export const orderHandlers = [
@@ -205,14 +205,6 @@ export const orderHandlers = [
       )
     }
 
-    const requestedStatus = request.headers.get(
-      "x-mock-order-status",
-    )
-
-    const status: OrderStatus = isOrderStatus(requestedStatus)
-      ? requestedStatus
-      : "pending"
-
     const order: Order = {
       id: createOrderId(),
       userId: session.user.id,
@@ -223,7 +215,7 @@ export const orderHandlers = [
       discount: quote.discount,
       networkFee: quote.networkFee,
       total: quote.total,
-      status,
+      status: "pending",
       createdAt: new Date().toISOString(),
     }
 
@@ -268,4 +260,80 @@ export const orderHandlers = [
       order: storedOrder.order,
     })
   }),
+
+  http.patch(
+    "/api/orders/:orderId/status",
+    async ({ params, request }) => {
+      const session = getActiveSession()
+
+      if (!session) {
+        return HttpResponse.json(
+          { message: "Autenticação necessária." },
+          { status: 401 },
+        )
+      }
+
+      let body: unknown
+
+      try {
+        body = await request.json()
+      } catch {
+        return HttpResponse.json(
+          { message: "Corpo da requisição inválido." },
+          { status: 400 },
+        )
+      }
+
+      if (
+        !isRecord(body) ||
+        !isOrderStatus(body.status) ||
+        body.status === "pending"
+      ) {
+        return HttpResponse.json(
+          { message: "Status de destino inválido." },
+          { status: 400 },
+        )
+      }
+
+      const orders = readOrders()
+
+      const orderIndex = orders.findIndex(
+        (item) =>
+          item.order.id === String(params.orderId) &&
+          item.order.userId === session.user.id,
+      )
+
+      if (orderIndex === -1) {
+        return HttpResponse.json(
+          { message: "Pedido não encontrado." },
+          { status: 404 },
+        )
+      }
+
+      const storedOrder = orders[orderIndex]
+
+      if (storedOrder.order.status !== "pending") {
+        return HttpResponse.json(
+          { message: "Este pedido já possui um status final." },
+          { status: 409 },
+        )
+      }
+
+      const updatedOrder: Order = {
+        ...storedOrder.order,
+        status: body.status,
+      }
+
+      orders[orderIndex] = {
+        ...storedOrder,
+        order: updatedOrder,
+      }
+
+      saveOrders(orders)
+
+      return HttpResponse.json({
+        order: updatedOrder,
+      })
+    },
+  ),
 ]

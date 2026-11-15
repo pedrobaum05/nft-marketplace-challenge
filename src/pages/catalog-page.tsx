@@ -92,6 +92,8 @@ export function CatalogPage() {
     isUpdating,
   } = useFavorites()
 
+  const [favoritesOnly, setFavoritesOnly] = useState(false)
+
   const sort: SortOption = searchParams.sort ?? "newest"
   const page = searchParams.page ?? 1
   const currentSearch = searchParams.q ?? ""
@@ -125,6 +127,12 @@ export function CatalogPage() {
     ...sortOptions[sort],
     page,
     pageSize: PAGE_SIZE,
+    ...(favoritesOnly
+      ? {
+          favoritesOnly: true,
+          favoriteIds: favorites,
+        }
+      : {}),
   })
 
   function handleSortChange(value: SortOption) {
@@ -142,6 +150,17 @@ export function CatalogPage() {
       search: (previous) => ({
         ...previous,
         page: nextPage === 1 ? undefined : nextPage,
+      }),
+    })
+  }
+
+  function handleFavoritesFilterChange(value: boolean) {
+    setFavoritesOnly(value)
+
+    void navigate({
+      search: (previous) => ({
+        ...previous,
+        page: undefined,
       }),
     })
   }
@@ -222,7 +241,7 @@ export function CatalogPage() {
           )}
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <SearchInput
             key={currentSearch}
             initialValue={currentSearch}
@@ -243,19 +262,66 @@ export function CatalogPage() {
             <option value="priceDesc">Maior preço</option>
             <option value="nameAsc">Nome (A-Z)</option>
           </select>
+
+          {isAuthenticated && (
+            <div
+              className="flex rounded-md border border-border p-1"
+              aria-label="Filtrar NFTs"
+            >
+              <button
+                type="button"
+                onClick={() => handleFavoritesFilterChange(false)}
+                aria-pressed={!favoritesOnly}
+                className={`rounded px-4 py-2 transition ${
+                  !favoritesOnly
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
+                }`}
+              >
+                Todos
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleFavoritesFilterChange(true)}
+                aria-pressed={favoritesOnly}
+                className={`rounded px-4 py-2 transition ${
+                  favoritesOnly
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
+                }`}
+              >
+                ♥ Favoritos ({favorites.length})
+              </button>
+            </div>
+          )}
         </div>
 
         {data.items.length === 0 ? (
           <div className="space-y-3 py-8">
-            <p>Nenhum NFT encontrado.</p>
+            <p>
+              {favoritesOnly
+                ? "Você ainda não possui NFTs favoritos."
+                : "Nenhum NFT encontrado."}
+            </p>
 
-            <button
-              type="button"
-              onClick={() => handleSearch("")}
-              className="rounded-md bg-primary px-4 py-2 text-primary-foreground"
-            >
-              Limpar pesquisa
-            </button>
+            {favoritesOnly ? (
+              <button
+                type="button"
+                onClick={() => handleFavoritesFilterChange(false)}
+                className="rounded-md bg-primary px-4 py-2 text-primary-foreground"
+              >
+                Ver todos os NFTs
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleSearch("")}
+                className="rounded-md bg-primary px-4 py-2 text-primary-foreground"
+              >
+                Limpar pesquisa
+              </button>
+            )}
           </div>
         ) : (
           <>

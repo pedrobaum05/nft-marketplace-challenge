@@ -1,3 +1,4 @@
+
 import type { DecimalString, ID } from "./common"
 
 export type NFTStatus = "available" | "sold" | "unavailable"
@@ -33,6 +34,8 @@ export interface NFTFilters {
   status?: NFTStatus
   sortBy?: "price" | "createdAt" | "name"
   sortDirection?: "asc" | "desc"
+  favoriteIds?: ID[]
+  favoritesOnly?: boolean
   page?: number
   pageSize?: number
 }
