@@ -29,9 +29,7 @@ export function CheckoutPage() {
   const [orderId, setOrderId] = useState<string | undefined>(() => {
     if (!quoteId) return undefined
 
-    return (
-      localStorage.getItem(getOrderStorageKey(quoteId)) ?? undefined
-    )
+    return localStorage.getItem(getOrderStorageKey(quoteId)) ?? undefined
   })
   const [idempotencyKey, setIdempotencyKey] = useState(
     () => crypto.randomUUID(),
@@ -138,8 +136,6 @@ export function CheckoutPage() {
       cleanedOrderId.current = targetOrder.id
 
       try {
-        // Remove somente os itens pertencentes ao pedido confirmado.
-        // As requisições são sequenciais para evitar conflitos no carrinho.
         for (const item of targetOrder.items) {
           await removeItem(item.id)
         }
@@ -159,7 +155,6 @@ export function CheckoutPage() {
   useEffect(() => {
     if (order?.status !== "confirmed") return
 
-    // Agenda a operação fora da execução síncrona do efeito.
     const timeoutId = window.setTimeout(() => {
       void cleanupPurchasedItems(order)
     }, 0)
@@ -387,8 +382,14 @@ export function CheckoutPage() {
                       Pagamento pendente. Aguardando confirmação.
                     </p>
 
-                    {import.meta.env.DEV && (
-                      <div className="flex flex-wrap gap-3 pt-2">
+                    <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
+                      <p className="text-sm text-gray-300">
+                        Ambiente de demonstração: utilize uma das opções
+                        abaixo para simular o resultado do pagamento.
+                        Nenhuma transação financeira real será realizada.
+                      </p>
+
+                      <div className="mt-3 flex flex-wrap gap-3">
                         <button
                           type="button"
                           onClick={() =>
@@ -397,7 +398,9 @@ export function CheckoutPage() {
                           disabled={isUpdatingStatus}
                           className="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
                         >
-                          Simular aprovação
+                          {isUpdatingStatus
+                            ? "Processando..."
+                            : "Simular aprovação"}
                         </button>
 
                         <button
@@ -408,10 +411,12 @@ export function CheckoutPage() {
                           disabled={isUpdatingStatus}
                           className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
                         >
-                          Simular recusa
+                          {isUpdatingStatus
+                            ? "Processando..."
+                            : "Simular recusa"}
                         </button>
                       </div>
-                    )}
+                    </div>
                   </>
                 )}
 
